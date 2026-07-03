@@ -1,0 +1,68 @@
+# market_params.yaml — Configurable Market Parameters
+# ======================================================
+# All simulation parameters can be overridden via this config file
+# or through command-line arguments to run.py.
+
+# --- Market Configuration ---
+market:
+  symbol: "SIM"
+  initial_price: 100.0
+  tick_size: 0.01
+  seed: 42
+  n_ticks: 5000
+
+# --- Agent Population ---
+agents:
+  n_value: 3      # Fundamental value investors
+  n_momentum: 5   # Trend-following traders
+  n_noise: 15     # Uninformed random traders
+  n_market_maker: 2  # Two-sided liquidity providers
+
+# --- Value Agent Strategy ---
+# Estimates fundamental value with noise. Buys below value, sells above.
+value_strategy:
+  lookback: 50              # Ticks used for value baseline estimation
+  noise_std: 0.02           # Std of Gaussian noise on value estimate
+  confidence_threshold: 0.005  # Min deviation (fraction) to trigger trade
+  max_position: 100         # Absolute position limit
+  order_size: 10.0          # Base quantity per order
+  order_size_std: 3.0       # Noise on order quantity
+  value_update_rate: 0.05   # Probability of updating value each tick
+  mean_reversion_speed: 0.3 # Aggressiveness toward fair value (0-1)
+
+# --- Momentum Agent Strategy ---
+# Follows price trends using dual moving average crossover.
+momentum_strategy:
+  lookback: 20              # Window for trend assessment
+  signal_lookback_short: 5  # Fast MA window
+  signal_lookback_long: 20  # Slow MA window
+  trend_threshold: 0.001    # Min return over lookback to consider a trend
+  volatility_threshold: 0.05  # Above this, reduce position (risk filter)
+  max_position: 80          # Absolute position limit
+  order_size: 15.0          # Base quantity per order
+  order_size_std: 5.0       # Noise on order quantity
+  holding_period: 30        # Ticks to hold before forced exit
+  stop_loss: 0.03           # Fractional loss triggering exit
+
+# --- Noise Agent Strategy ---
+# Random trading that simulates uninformed flow and provides liquidity.
+noise_strategy:
+  buy_probability: 0.5      # Probability of buy (vs sell) conditional on trading
+  trade_probability: 0.3    # Probability of trading at all each tick
+  mean_order_size: 5.0      # Mean of log-normal size distribution
+  size_std: 3.0             # Std of order size
+  price_deviation_std: 0.005  # Std of price deviation from mid (fraction)
+  use_market_orders: 0.2    # Fraction of orders that are market orders
+  max_position: 150         # Absolute position limit
+
+# --- Market Maker Strategy ---
+# Two-sided liquidity with spread management and inventory control.
+market_maker_strategy:
+  base_spread: 0.002        # Minimum spread (20 bps)
+  volatility_multiplier: 2.0  # Multiplier to widen spread with volatility
+  inventory_aversion: 0.01  # Aggressiveness of inventory skew
+  max_position: 200         # Absolute position limit
+  quote_size: 25.0          # Quantity quoted on each side
+  requote_interval: 3       # Ticks between quote refreshes
+  max_spread: 0.02          # Maximum spread cap (200 bps)
+  position_target: 0.0      # Target inventory
